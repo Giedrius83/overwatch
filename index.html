@@ -22,13 +22,13 @@ table{border-collapse:collapse;width:100%;background:#1a2132}td,th{border-bottom
 <div class="pane on" id="alerts"><h1>Trade alerts</h1><div class="small">Info only. You place trades yourself.</div><div class="feed" id="f-alerts"></div></div>
 <div class="pane" id="status"><h1>Swarm status</h1><div class="feed" id="f-status"></div></div>
 <div class="pane" id="set"><h1>Setup</h1><div class="set small">Topic names stay on this phone only.<br>Alerts topic<input id="ta"><br>Status topic<input id="ts"><button id="save">Save</button></div></div>
-<div class="pane" id="market"><h1>Silver (XAGUSD) — Sessions & Volatility Windows</h1>
+<div class="pane" id="market"><h1>Silver (XAGUSD) — Sessions and Volatility Windows</h1>
 <div class="small" id="sub"></div>
 <h2>Live clocks</h2><div class="clocks" id="clocks"></div>
 <h2>24h timeline (Oslo time)</h2><div id="tl"><div id="rows" style="position:relative"></div><div class="ax" id="ax"></div></div>
 <h2>Most likely move times (Oslo time)</h2>
 <table><thead><tr><th>Oslo time</th><th>Expected volatility</th><th>Why it matters</th></tr></thead><tbody id="tb"></tbody></table>
-<p class="small">Volatility ratings are general session patterns (liquidity & overlaps), NOT a forecast or trading advice. Data-release times vary by day; check an economic calendar.</p>
+<p class="small">Volatility ratings are general session patterns (liquidity and overlaps), NOT a forecast or trading advice. Data-release times vary by day; check an economic calendar.</p>
 <h2>Live XAGUSD chart (OANDA, 5m)</h2>
 <div class="tradingview-widget-container" style="height:520px"><div id="tvchart" style="height:520px"></div></div>
 </div><script src="https://s3.tradingview.com/tv.js"></script>
@@ -79,7 +79,7 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.que
 const K={a:'ow_alerts',s:'ow_status'};const ta=document.getElementById('ta'),ts=document.getElementById('ts');
 ta.value=localStorage.getItem(K.a)||'';ts.value=localStorage.getItem(K.s)||'';
 document.getElementById('save').onclick=()=>{localStorage.setItem(K.a,ta.value.trim());localStorage.setItem(K.s,ts.value.trim());location.reload();};
-function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&','<':'<','>':'>','"':'"'}[c]));}
+function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
 function feed(topic,el,kind){if(!topic){el.innerHTML='<div class="small">Add the topic in Setup.</div>';return;}
  const box=document.getElementById(el.id);const items=[];
  const draw=()=>{box.innerHTML=items.length?items.slice().sort((a,b)=>b.time-a.time).slice(0,100).map(m=>'<div class="msg '+(kind==='alerts'||/alert/i.test(m.title||m.message)?'alert':'')+'"><b>'+esc(m.title||'')+'</b>'+esc(m.message)+'<div class="small">'+new Date(m.time*1000).toLocaleString('en-GB',{timeZone:OSLO})+'</div></div>').join(''):'<div class="small">No messages in the last 12 hours.</div>';};
