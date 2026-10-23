@@ -56,6 +56,32 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
 #tvchart{height:420px}
 .pred-table td, .pred-table th{white-space:nowrap}
 .hdr-sub{font-size:13px;color:#9aa3b5;margin:0 0 10px}
+
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0}
+.pred-card{background:#1a2132;border:1px solid #2a3348;border-radius:10px;padding:12px 12px 10px;position:relative}
+.pred-card .sym{font-weight:800;font-size:16px;letter-spacing:.04em}
+.pred-card .price{font-size:11px;color:#9aa3b5;margin:2px 0 8px}
+.hz{display:flex;align-items:center;gap:8px;margin:6px 0}
+.hz .lab{font-size:11px;color:#9aa3b5;width:28px}
+.hz .barwrap{flex:1;height:10px;background:#0f1420;border-radius:6px;overflow:hidden;position:relative}
+.hz .bar{height:100%;border-radius:6px;min-width:2px}
+.hz .bar.up{background:linear-gradient(90deg,#166534,#4ade80)}
+.hz .bar.down{background:linear-gradient(90deg,#7f1d1d,#f87171)}
+.hz .bar.flat{background:#4b5563}
+.hz .arrow{font-size:18px;width:22px;text-align:center;font-weight:800}
+.hz .arrow.up{color:#4ade80}.hz .arrow.down{color:#f87171}.hz .arrow.flat{color:#9aa3b5}
+.spark{width:100%;height:36px;margin-top:4px}
+.wind-box{background:#1a2132;border:1px solid #2a3348;border-radius:10px;padding:14px;margin:10px 0 14px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.wind-meter{width:120px;height:120px;position:relative}
+.wind-meter svg{width:120px;height:120px}
+.wind-meter .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;font-weight:800;font-size:28px}
+.wind-meter .num small{font-size:11px;font-weight:600;color:#9aa3b5}
+.wind-legend{flex:1;min-width:180px}
+.wind-legend .t{font-weight:700;margin-bottom:4px}
+.hit-pills{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px}
+.hit-pill{background:#0f1420;border:1px solid #2a3348;border-radius:999px;padding:6px 12px;font-size:12px}
+.hit-pill b{color:#93c5fd}
+.pred-updated{font-size:12px;color:#9aa3b5;margin:0 0 8px}
 </style>
 </head>
 <body>
@@ -79,6 +105,7 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
 <!-- SWARM -->
 <div class="pane" id="status">
   <h1>Swarm status</h1>
+<div class="paper-banner" style="background:#7c2d12;border-color:#f97316;color:#fed7aa">PAPER SHORT-SCALP UNTIL MONDAY (Europe/Oslo) - SELL/short scalps only, no real money. Live eToro path (Scout-Quant-Guard-Trader) only after explicit GO LIVE.</div>
   <div class="hdr-sub">Overwatch — paper swarm + silver sessions. Info only.</div>
   <div class="paper-banner">PAPER ONLY for News · Prediction · Research — no real money. PIPE bots gate live tickets separately.</div>
   <div class="bots" id="bot-grid"></div>
@@ -89,7 +116,7 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
 <!-- NEWS -->
 <div class="pane" id="news">
   <h1>News</h1>
-  <div class="hdr-sub">Crypto & commodities headlines — PAPER ONLY</div>
+  <div class="hdr-sub">Crypto and commodities headlines — PAPER ONLY</div>
   <div class="paper-banner">PAPER ONLY — News bot research. No orders from this pane.</div>
   <div class="feed" id="f-news"><div class="small">News bot posts relevant crypto/commodity headlines here (paper).</div></div>
 </div>
@@ -97,17 +124,37 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
 <!-- PREDICTIONS -->
 <div class="pane" id="pred">
   <h1>Predictions</h1>
-  <div class="hdr-sub">5m / 15m forecasts — PAPER ONLY</div>
-  <div class="paper-banner">PAPER ONLY — no real money. Forecasts are informational; never auto-trade from this table.</div>
-  <p class="small">Hit rate: — (Prediction bot fills after first scored window)</p>
-  <table class="pred-table">
-    <thead>
-      <tr><th>Asset</th><th>Horizon</th><th>Direction</th><th>Confidence</th><th>Method</th><th>Updated (Oslo)</th></tr>
-    </thead>
-    <tbody id="pred-body"></tbody>
-  </table>
-  <h2>Prediction feed</h2>
-  <div class="feed" id="f-pred"><div class="small">Prediction bot posts scored runs here when the ow_pred topic is set.</div></div>
+<div class="paper-banner" style="background:#7c2d12;border-color:#f97316;color:#fed7aa">PAPER SHORT-SCALP UNTIL MONDAY (Europe/Oslo) - SELL/short scalps only, no real money. Live eToro path (Scout-Quant-Guard-Trader) only after explicit GO LIVE.</div>
+  <div class="hdr-sub">5m / 15m momentum — charts only · PAPER ONLY</div>
+  <div class="paper-banner">PAPER ONLY — visuals only, never auto-trade from this pane.</div>
+
+  <div class="wind-box" id="wind-box" title="Wind = short-scalp bias. Signal = forecast directions. Score 1–10 = how much signal agrees with the short wind.">
+    <div class="wind-meter">
+      <svg viewBox="0 0 120 120" aria-label="Wind versus signal score">
+        <circle cx="60" cy="60" r="48" fill="none" stroke="#0f1420" stroke-width="12"/>
+        <circle id="wind-arc" cx="60" cy="60" r="48" fill="none" stroke="#f97316" stroke-width="12"
+          stroke-linecap="round" stroke-dasharray="0 302" transform="rotate(-90 60 60)"/>
+      </svg>
+      <div class="num"><span id="wind-score">—</span><small>wind vs signal</small></div>
+    </div>
+    <div class="wind-legend">
+      <div class="t">Wind vs signal (1–10)</div>
+      <div class="small" id="wind-note">Waiting for ow_pred… Short-scalp wind prefers DOWN. Higher score = forecasts lean short with the wind.</div>
+      <div class="hit-pills" id="hit-pills">
+        <div class="hit-pill">Hit rate <b id="hit-rate">—</b></div>
+        <div class="hit-pill">Updated <b id="pred-ts">—</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pred-grid" id="pred-grid"></div>
+  <p class="pred-updated small">Tap a card: green = UP, red = DOWN, grey = FLAT. Bar length = confidence. Spark = 5m→15m lean.</p>
+  <!-- keep feed for raw ntfy but collapsed visually -->
+  <details>
+    <summary class="small">Raw prediction feed (optional)</summary>
+    <div class="feed" id="f-pred"><div class="small">Prediction bot posts scored runs here when the ow_pred topic is set.</div></div>
+  </details>
+  <tbody id="pred-body" style="display:none"></tbody>
 </div>
 
 <!-- SETUP -->
@@ -125,7 +172,7 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
 
 <!-- MARKET -->
 <div class="pane" id="market">
-  <h1>Market — Sessions, futures & crypto</h1>
+  <h1>Market — Sessions, futures and crypto</h1>
   <div class="hdr-sub">Overwatch — paper swarm + silver sessions. Info only.</div>
   <div class="small" id="sub"></div>
 
@@ -142,7 +189,7 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
   </table>
   <p class="small">Volatility ratings are general session patterns (liquidity and overlaps), NOT a forecast or trading advice. Data-release times vary by day; check an economic calendar.</p>
 
-  <h2>Futures & crypto charts</h2>
+  <h2>Futures and crypto charts</h2>
   <p class="small">One chart, switch symbol. Default: Silver (OANDA:XAGUSD). PAPER / info only — no live prices invented here.</p>
   <div class="symbtns" id="symbtns"></div>
   <div class="tradingview-widget-container" style="height:420px">
@@ -252,7 +299,7 @@ const BOTS=[
   {name:'Trader',role:'Places tickets only after Guard',mode:'LIVE PIPE'},
   {name:'Manager',role:'Orchestrates the swarm',mode:'LIVE PIPE'},
   {name:'Research',role:'23:55 daily pack → Drive (SB)',mode:'PAPER'},
-  {name:'News',role:'Watches news for crypto & commodities',mode:'PAPER'},
+  {name:'News',role:'Watches news for crypto and commodities',mode:'PAPER'},
   {name:'Prediction',role:'5m / 15m paper forecasts',mode:'PAPER'}
 ];
 (function renderBots(){
@@ -266,28 +313,76 @@ const BOTS=[
   }).join('');
 })();
 
-/* ---- Predictions empty table ---- */
-const PRED_ASSETS=[
-  {a:'BTC',sym:'BTC'},
-  {a:'ETH',sym:'ETH'},
-  {a:'XRP',sym:'XRP'},
-  {a:'Gold (GC=F)',sym:'GC'},
-  {a:'Silver (SI=F)',sym:'SI'},
-  {a:'WTI (CL=F)',sym:'CL'}
-];
-(function renderPred(){
-  const body=document.getElementById('pred-body');
-  const rows=[];
-  PRED_ASSETS.forEach(p=>{
-    ['5m','15m'].forEach(h=>{
-      rows.push('<tr><td>'+p.a+'</td><td>'+h+'</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>');
-    });
+/* ---- Predictions visual grid ---- */
+const PRED_ASSETS=['BTC','ETH','XRP','SOL','AVAX','ADA','LINK'];
+function dirArrow(d){d=(d||'FLAT').toUpperCase();return d==='UP'?'▲':d==='DOWN'?'▼':'●';}
+function dirClass(d){d=(d||'FLAT').toUpperCase();return d==='UP'?'up':d==='DOWN'?'down':'flat';}
+function sparkPath(d5,c5,d15,c15){
+  const s5=(d5==='UP'?1:d5==='DOWN'?-1:0)*(c5||0);
+  const s15=(d15==='UP'?1:d15==='DOWN'?-1:0)*(c15||0);
+  const y0=18, y1=18-s5*14, y2=18-s15*14;
+  return 'M2 '+y0+' L28 '+y1+' L54 '+y2;
+}
+function windScore(forecasts){
+  // Short-scalp wind prefers DOWN. Score 1-10 = agreement of signals with that wind.
+  if(!forecasts||!forecasts.length)return {score:null,note:'No forecasts yet'};
+  let w=0,tw=0;
+  forecasts.forEach(f=>{
+    const c=Math.max(0,Math.min(1,+f.confidence||0));
+    const d=(f.direction||'FLAT').toUpperCase();
+    const align=d==='DOWN'?1:d==='UP'?-1:0; // with / against short wind
+    w+=align*c; tw+=c;
   });
-  body.innerHTML=rows.join('');
+  if(tw<0.05)return {score:5,note:'Mostly FLAT / tiny confidence — wind and signal both quiet.'};
+  const raw=(w/tw+1)/2; // -1..1 → 0..1
+  const score=Math.max(1,Math.min(10,Math.round(1+raw*9)));
+  const note=score>=7?'Signals lean with the short wind.':score<=4?'Signals lean against the short wind (more UP).':'Mixed — wind and signal disagree.';
+  return {score,note};
+}
+function renderPredCards(byAsset, ts){
+  const grid=document.getElementById('pred-grid');
+  grid.innerHTML=PRED_ASSETS.map(a=>{
+    const g=byAsset[a]||{};
+    const f5=g['5m']||{direction:'FLAT',confidence:0};
+    const f15=g['15m']||{direction:'FLAT',confidence:0};
+    const c5=Math.max(0,Math.min(1,+f5.confidence||0));
+    const c15=Math.max(0,Math.min(1,+f15.confidence||0));
+    const price=f5.price_at_forecast||f15.price_at_forecast||f5.price||f15.price||'—';
+    const sp=sparkPath((f5.direction||'').toUpperCase(),c5,(f15.direction||'').toUpperCase(),c15);
+    const stroke=((f15.direction||'FLAT').toUpperCase()==='DOWN')?'#f87171':((f15.direction||'').toUpperCase()==='UP')?'#4ade80':'#9aa3b5';
+    return '<div class="pred-card">'+
+      '<div class="sym">'+a+'</div>'+
+      '<div class="price">'+esc(price)+'</div>'+
+      '<div class="hz"><span class="lab">5m</span><span class="arrow '+dirClass(f5.direction)+'">'+dirArrow(f5.direction)+'</span>'+
+        '<div class="barwrap"><div class="bar '+dirClass(f5.direction)+'" style="width:'+(c5*100)+'%"></div></div></div>'+
+      '<div class="hz"><span class="lab">15m</span><span class="arrow '+dirClass(f15.direction)+'">'+dirArrow(f15.direction)+'</span>'+
+        '<div class="barwrap"><div class="bar '+dirClass(f15.direction)+'" style="width:'+(c15*100)+'%"></div></div></div>'+
+      '<svg class="spark" viewBox="0 0 56 36" preserveAspectRatio="none"><path d="'+sp+'" fill="none" stroke="'+stroke+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+      '</div>';
+  }).join('');
+  if(ts)document.getElementById('pred-ts').textContent=ts;
+}
+function setWind(score, note){
+  const circ=2*Math.PI*48;
+  const arc=document.getElementById('wind-arc');
+  const el=document.getElementById('wind-score');
+  if(score==null){el.textContent='—';arc.setAttribute('stroke-dasharray','0 '+circ);document.getElementById('wind-note').textContent=note||'';return;}
+  el.textContent=String(score);
+  const frac=score/10;
+  arc.setAttribute('stroke-dasharray',(frac*circ)+' '+circ);
+  const col=score>=7?'#4ade80':score<=4?'#f87171':'#f97316';
+  arc.setAttribute('stroke',col);
+  document.getElementById('wind-note').textContent=note||'';
+}
+(function renderPredEmpty(){
+  const empty={}; PRED_ASSETS.forEach(a=>{empty[a]={'5m':{},'15m':{}};});
+  renderPredCards(empty,'—');
+  setWind(null,'Waiting for ow_pred…');
 })();
 
 /* ---- ntfy topics / feeds ---- */
 const K={a:'ow_alerts',s:'ow_status',n:'ow_news',p:'ow_pred'};
+Object.values(K).forEach(k=>{if(!localStorage.getItem(k))localStorage.setItem(k,k);});
 const ta=document.getElementById('ta'),ts=document.getElementById('ts'),
       tn=document.getElementById('tn'),tp=document.getElementById('tp');
 ta.value=localStorage.getItem(K.a)||'';
@@ -302,10 +397,38 @@ document.getElementById('save').onclick=()=>{
   location.reload();
 };
 function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
+
+function predIngest(m){
+  let fc=null, hit=null;
+  try{
+    const j=JSON.parse(m.message);
+    fc=j.forecasts||(j.payload&&j.payload.forecasts)||null;
+    const hr=j.hit_rate||(j.payload&&j.payload.hit_rate);
+    if(hr){
+      if(hr.cumulative_scored&&hr.cumulative_scored.hit_rate!=null)hit=hr.cumulative_scored;
+      else if(hr.hit_rate!=null)hit=hr;
+    }
+  }catch(e){}
+  if(!fc){fc=[];String(m.message||'').replace(/([A-Z]{2,6})\s+(5m|15m)\s+(UP|DOWN|FLAT)\s+([0-9.]+)/g,(_,a,h,d,c)=>{fc.push({asset:a,horizon:h,direction:d,confidence:+c});});}
+  if(!fc.length)return;
+  const ts=new Date(m.time*1000).toLocaleString('en-GB',{timeZone:OSLO});
+  const by={};
+  fc.forEach(f=>{
+    const a=String(f.asset||'').replace('/USDT','').toUpperCase();
+    if(!by[a])by[a]={};
+    by[a][f.horizon]=f;
+  });
+  renderPredCards(by, ts);
+  const w=windScore(fc);
+  setWind(w.score, w.note);
+  if(hit&&hit.hit_rate!=null){
+    document.getElementById('hit-rate').textContent=(Math.round(+hit.hit_rate*1000)/10)+'% ('+(hit.hits||'?')+'/'+(hit.n||'?')+')';
+  }
+}
 function feed(topic,el,kind,emptyMsg){
   if(!topic){el.innerHTML='<div class="small">'+(emptyMsg||'Add the topic in Setup.')+'</div>';return;}
   const box=document.getElementById(el.id);const items=[];
-  const draw=()=>{box.innerHTML=items.length?items.slice().sort((a,b)=>b.time-a.time).slice(0,100).map(m=>'<div class="msg '+(kind==='alerts'||/alert/i.test(m.title||m.message)?'alert':'')+'"><b>'+esc(m.title||'')+'</b>'+esc(m.message)+'<div class="small">'+new Date(m.time*1000).toLocaleString('en-GB',{timeZone:OSLO})+'</div></div>').join(''):'<div class="small">No messages in the last 12 hours.</div>';};
+  const draw=()=>{if(kind==='pred'&&items.length){predIngest(items.slice().sort((a,b)=>b.time-a.time)[0]);}box.innerHTML=items.length?items.slice().sort((a,b)=>b.time-a.time).slice(0,100).map(m=>'<div class="msg '+(kind==='alerts'||/alert/i.test(m.title||m.message)?'alert':'')+'"><b>'+esc(m.title||'')+'</b>'+esc(m.message)+'<div class="small">'+new Date(m.time*1000).toLocaleString('en-GB',{timeZone:OSLO})+'</div></div>').join(''):'<div class="small">No messages in the last 12 hours.</div>';};
   fetch('https://ntfy.sh/'+encodeURIComponent(topic)+'/json?poll=1&since=12h').then(r=>r.text()).then(t=>{t.split('\n').forEach(l=>{try{const m=JSON.parse(l);if(m.event==='message')items.push(m);}catch(e){}});draw();
    const es=new EventSource('https://ntfy.sh/'+encodeURIComponent(topic)+'/sse');es.onmessage=e=>{const m=JSON.parse(e.data);if(m.event==='message'&&!items.some(x=>x.id===m.id)){items.push(m);draw();}};}).catch(()=>{box.innerHTML='<div class="small">Feed offline.</div>';});
 }
