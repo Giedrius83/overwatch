@@ -1,44 +1,207 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0f1420"><title>Overwatch</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f1420">
+<title>Overwatch</title>
 <style>
-body{background:#0f1420;color:#e6e9ef;font-family:system-ui,Arial;margin:16px}h1{font-size:20px;margin:0 0 4px}h2{font-size:16px;margin:18px 0 8px}
-.clocks{display:flex;gap:10px;flex-wrap:wrap}.c{background:#1a2132;border-radius:8px;padding:10px 14px;min-width:160px}
-.c .t{font-size:24px;font-weight:600}.open{color:#4ade80}.closed{color:#f87171}.small{font-size:12px;color:#9aa3b5}
-#tl{background:#1a2132;border-radius:8px;padding:8px 8px 24px}.row{position:relative;height:22px;margin:4px 0 4px 110px}
-.lbl{position:absolute;left:-110px;width:105px;white-space:nowrap;font-size:12px;line-height:22px}.bar{position:absolute;height:22px;border-radius:4px;opacity:.85}
-#now{position:absolute;top:0;bottom:0;width:2px;background:#fff}.ax{position:relative;margin-left:110px;height:14px;font-size:10px;color:#9aa3b5}
-table{border-collapse:collapse;width:100%;background:#1a2132}td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:left;vertical-align:top}
+body{background:#0f1420;color:#e6e9ef;font-family:system-ui,Arial,sans-serif;margin:16px}
+h1{font-size:20px;margin:0 0 4px}h2{font-size:16px;margin:18px 0 8px}
+.clocks{display:flex;gap:10px;flex-wrap:wrap}
+.c{background:#1a2132;border-radius:8px;padding:10px 14px;min-width:160px}
+.c .t{font-size:24px;font-weight:600}
+.open{color:#4ade80}.closed{color:#f87171}
+.small{font-size:12px;color:#9aa3b5}
+#tl{background:#1a2132;border-radius:8px;padding:8px 8px 24px}
+.row{position:relative;height:22px;margin:4px 0 4px 110px}
+.lbl{position:absolute;left:-110px;width:105px;white-space:nowrap;font-size:12px;line-height:22px}
+.bar{position:absolute;height:22px;border-radius:4px;opacity:.85}
+#now{position:absolute;top:0;bottom:0;width:2px;background:#fff}
+.ax{position:relative;margin-left:110px;height:14px;font-size:10px;color:#9aa3b5}
+table{border-collapse:collapse;width:100%;background:#1a2132}
+td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:left;vertical-align:top}
 .High{color:#f87171;font-weight:700}.Medium{color:#fbbf24;font-weight:700}.Low{color:#60a5fa;font-weight:700}
-
-@media(max-width:700px){body{margin:10px}.clocks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.c{min-width:0;padding:8px 10px}.c .t{font-size:20px}
-.row{margin-left:84px}.lbl{left:-84px;width:80px;font-size:11px}.ax{margin-left:84px}td,th{font-size:12px;padding:5px}}
-.tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;background:#0f1420;padding:6px 0;margin-bottom:6px}
-.tabs button{flex:1;background:#1a2132;color:#e6e9ef;border:0;border-radius:8px;padding:10px 4px;font-size:14px}
-.tabs button.on{background:#2563eb}.pane{display:none}.pane.on{display:block}
-.feed{display:flex;flex-direction:column;gap:8px}.msg{background:#1a2132;border-radius:8px;padding:10px;border-left:4px solid #60a5fa}
-.msg.alert{border-left-color:#f87171}.msg b{display:block;margin-bottom:2px}.set input{width:100%;box-sizing:border-box;background:#1a2132;color:#e6e9ef;border:1px solid #2a3348;border-radius:6px;padding:8px;margin:4px 0 10px}
+@media(max-width:700px){
+  body{margin:10px}
+  .clocks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .c{min-width:0;padding:8px 10px}.c .t{font-size:20px}
+  .row{margin-left:84px}.lbl{left:-84px;width:80px;font-size:11px}
+  .ax{margin-left:84px}td,th{font-size:12px;padding:5px}
+  .tabs button{font-size:12px;padding:8px 2px}
+  .bots{grid-template-columns:1fr 1fr!important}
+}
+.tabs{position:sticky;top:0;z-index:5;display:flex;gap:4px;background:#0f1420;padding:6px 0;margin-bottom:6px;flex-wrap:nowrap;overflow-x:auto}
+.tabs button{flex:1;min-width:0;background:#1a2132;color:#e6e9ef;border:0;border-radius:8px;padding:10px 4px;font-size:13px;white-space:nowrap}
+.tabs button.on{background:#2563eb}
+.pane{display:none}.pane.on{display:block}
+.feed{display:flex;flex-direction:column;gap:8px}
+.msg{background:#1a2132;border-radius:8px;padding:10px;border-left:4px solid #60a5fa}
+.msg.alert{border-left-color:#f87171}
+.msg b{display:block;margin-bottom:2px}
+.set input{width:100%;box-sizing:border-box;background:#1a2132;color:#e6e9ef;border:1px solid #2a3348;border-radius:6px;padding:8px;margin:4px 0 10px}
 .set button{background:#2563eb;color:#fff;border:0;border-radius:6px;padding:10px 14px}
-</style></head><body>
-<div class="tabs"><button data-p="alerts" class="on">Alerts</button><button data-p="status">Swarm</button><button data-p="market">Market</button><button data-p="set">Setup</button></div>
-<div class="pane on" id="alerts"><h1>Trade alerts</h1><div class="small">Info only. You place trades yourself.</div><div class="feed" id="f-alerts"></div></div>
-<div class="pane" id="status"><h1>Swarm status</h1><div class="feed" id="f-status"></div></div>
-<div class="pane" id="set"><h1>Setup</h1><div class="set small">Topic names stay on this phone only.<br>Alerts topic<input id="ta"><br>Status topic<input id="ts"><button id="save">Save</button></div></div>
-<div class="pane" id="market"><h1>Silver (XAGUSD) — Sessions and Volatility Windows</h1>
-<div class="small" id="sub"></div>
-<h2>Live clocks</h2><div class="clocks" id="clocks"></div>
-<h2>24h timeline (Oslo time)</h2><div id="tl"><div id="rows" style="position:relative"></div><div class="ax" id="ax"></div></div>
-<h2>Most likely move times (Oslo time)</h2>
-<table><thead><tr><th>Oslo time</th><th>Expected volatility</th><th>Why it matters</th></tr></thead><tbody id="tb"></tbody></table>
-<p class="small">Volatility ratings are general session patterns (liquidity and overlaps), NOT a forecast or trading advice. Data-release times vary by day; check an economic calendar.</p>
-<h2>Live XAGUSD chart (OANDA, 5m)</h2>
-<div class="tradingview-widget-container" style="height:520px"><div id="tvchart" style="height:520px"></div></div>
-</div><script src="https://s3.tradingview.com/tv.js"></script>
+.bots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0}
+.bot{background:#1a2132;border-radius:8px;padding:12px;border:1px solid #2a3348}
+.bot .name{font-weight:700;font-size:15px;margin-bottom:2px}
+.bot .role{font-size:12px;color:#9aa3b5;margin-bottom:8px;min-height:32px}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:4px;letter-spacing:.02em}
+.badge.paper{background:#065f46;color:#6ee7b7}
+.badge.live{background:#1e3a5f;color:#93c5fd}
+.badge.idle{background:#374151;color:#d1d5db}
+.paper-banner{background:#064e3b;border:1px solid #059669;color:#6ee7b7;border-radius:8px;padding:8px 12px;font-size:13px;margin:8px 0 12px;font-weight:600}
+.symbtns{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.symbtns button{background:#1a2132;color:#e6e9ef;border:1px solid #2a3348;border-radius:6px;padding:8px 12px;font-size:13px}
+.symbtns button.on{background:#2563eb;border-color:#2563eb}
+#tvchart{height:420px}
+.pred-table td, .pred-table th{white-space:nowrap}
+.hdr-sub{font-size:13px;color:#9aa3b5;margin:0 0 10px}
+</style>
+</head>
+<body>
+<div class="tabs">
+  <button data-p="alerts" class="on">Alerts</button>
+  <button data-p="status">Swarm</button>
+  <button data-p="news">News</button>
+  <button data-p="pred">Predictions</button>
+  <button data-p="market">Market</button>
+  <button data-p="set">Setup</button>
+</div>
+
+<!-- ALERTS -->
+<div class="pane on" id="alerts">
+  <h1>Trade alerts</h1>
+  <div class="hdr-sub">Overwatch — paper swarm + silver sessions. Info only.</div>
+  <div class="small">Info only. You place trades yourself.</div>
+  <div class="feed" id="f-alerts"></div>
+</div>
+
+<!-- SWARM -->
+<div class="pane" id="status">
+  <h1>Swarm status</h1>
+  <div class="hdr-sub">Overwatch — paper swarm + silver sessions. Info only.</div>
+  <div class="paper-banner">PAPER ONLY for News · Prediction · Research — no real money. PIPE bots gate live tickets separately.</div>
+  <div class="bots" id="bot-grid"></div>
+  <h2>Status feed</h2>
+  <div class="feed" id="f-status"></div>
+</div>
+
+<!-- NEWS -->
+<div class="pane" id="news">
+  <h1>News</h1>
+  <div class="hdr-sub">Crypto & commodities headlines — PAPER ONLY</div>
+  <div class="paper-banner">PAPER ONLY — News bot research. No orders from this pane.</div>
+  <div class="feed" id="f-news"><div class="small">News bot posts relevant crypto/commodity headlines here (paper).</div></div>
+</div>
+
+<!-- PREDICTIONS -->
+<div class="pane" id="pred">
+  <h1>Predictions</h1>
+  <div class="hdr-sub">5m / 15m forecasts — PAPER ONLY</div>
+  <div class="paper-banner">PAPER ONLY — no real money. Forecasts are informational; never auto-trade from this table.</div>
+  <p class="small">Hit rate: — (Prediction bot fills after first scored window)</p>
+  <table class="pred-table">
+    <thead>
+      <tr><th>Asset</th><th>Horizon</th><th>Direction</th><th>Confidence</th><th>Method</th><th>Updated (Oslo)</th></tr>
+    </thead>
+    <tbody id="pred-body"></tbody>
+  </table>
+  <h2>Prediction feed</h2>
+  <div class="feed" id="f-pred"><div class="small">Prediction bot posts scored runs here when the ow_pred topic is set.</div></div>
+</div>
+
+<!-- SETUP -->
+<div class="pane" id="set">
+  <h1>Setup</h1>
+  <div class="set small">
+    Topic names stay on this phone only.<br>
+    Alerts topic<input id="ta" placeholder="ow_alerts"><br>
+    Status topic<input id="ts" placeholder="ow_status"><br>
+    News topic<input id="tn" placeholder="ow_news"><br>
+    Predictions topic<input id="tp" placeholder="ow_pred"><br>
+    <button id="save">Save</button>
+  </div>
+</div>
+
+<!-- MARKET -->
+<div class="pane" id="market">
+  <h1>Market — Sessions, futures & crypto</h1>
+  <div class="hdr-sub">Overwatch — paper swarm + silver sessions. Info only.</div>
+  <div class="small" id="sub"></div>
+
+  <h2>Live clocks (silver / COMEX context)</h2>
+  <div class="clocks" id="clocks"></div>
+
+  <h2>24h timeline (Oslo time)</h2>
+  <div id="tl"><div id="rows" style="position:relative"></div><div class="ax" id="ax"></div></div>
+
+  <h2>Most likely move times (Oslo time)</h2>
+  <table>
+    <thead><tr><th>Oslo time</th><th>Expected volatility</th><th>Why it matters</th></tr></thead>
+    <tbody id="tb"></tbody>
+  </table>
+  <p class="small">Volatility ratings are general session patterns (liquidity and overlaps), NOT a forecast or trading advice. Data-release times vary by day; check an economic calendar.</p>
+
+  <h2>Futures & crypto charts</h2>
+  <p class="small">One chart, switch symbol. Default: Silver (OANDA:XAGUSD). PAPER / info only — no live prices invented here.</p>
+  <div class="symbtns" id="symbtns"></div>
+  <div class="tradingview-widget-container" style="height:420px">
+    <div id="tvchart" style="height:420px"></div>
+  </div>
+</div>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-try{new TradingView.widget({container_id:"tvchart",symbol:"OANDA:XAGUSD",interval:"5",timezone:"Europe/Oslo",theme:"dark",style:"1",locale:"en",autosize:true,allow_symbol_change:true});}catch(e){document.getElementById('tvchart').textContent='TradingView widget failed to load (offline?).';}
+/* ---- TradingView symbol switcher ---- */
+const SYMBOLS=[
+  {id:'XAG',label:'Silver',tv:'OANDA:XAGUSD'},
+  {id:'XAU',label:'Gold',tv:'OANDA:XAUUSD'},
+  {id:'WTI',label:'WTI',tv:'TVC:USOIL'},
+  {id:'BTC',label:'BTC',tv:'BINANCE:BTCUSDT'},
+  {id:'ETH',label:'ETH',tv:'BINANCE:ETHUSDT'},
+  {id:'XRP',label:'XRP',tv:'BINANCE:XRPUSDT'}
+];
+let tvWidget=null, currentSym=SYMBOLS[0];
+function loadTV(sym){
+  currentSym=sym;
+  const el=document.getElementById('tvchart');
+  el.innerHTML='';
+  try{
+    tvWidget=new TradingView.widget({
+      container_id:'tvchart',
+      symbol:sym.tv,
+      interval:'5',
+      timezone:'Europe/Oslo',
+      theme:'dark',
+      style:'1',
+      locale:'en',
+      autosize:true,
+      allow_symbol_change:true,
+      hide_side_toolbar:false
+    });
+  }catch(e){el.textContent='TradingView widget failed to load (offline?).';}
+  document.querySelectorAll('#symbtns button').forEach(b=>{
+    b.classList.toggle('on',b.dataset.id===sym.id);
+  });
+}
+(function buildSymBtns(){
+  const box=document.getElementById('symbtns');
+  SYMBOLS.forEach(s=>{
+    const b=document.createElement('button');
+    b.textContent=s.label;
+    b.dataset.id=s.id;
+    if(s.id===currentSym.id)b.classList.add('on');
+    b.onclick=()=>loadTV(s);
+    box.appendChild(b);
+  });
+  loadTV(currentSym);
+})();
+
+/* ---- Session clocks / timeline (preserved) ---- */
 const OSLO='Europe/Oslo';
 function off(tz,d){const p={};new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(d).forEach(x=>p[x.type]=x.value);
  return Math.round((Date.UTC(+p.year,p.month-1,+p.day,+p.hour,+p.minute,+p.second)-d.getTime())/60000);}
 function parts(tz,d){const p={};new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',weekday:'short',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(d).forEach(x=>p[x.type]=x.value);return p;}
-// UTC instant of local time h:m in tz on the tz-date matching Oslo's today
 function at(tz,h,m,base){const p=parts(OSLO,base);let g=Date.UTC(+p.year,p.month-1,+p.day,h,m);let t=g-off(tz,new Date(g))*60000;t=g-off(tz,new Date(t))*60000;return t;}
 function osloMin(t){const p=parts(OSLO,new Date(t));return (+p.hour)*60+(+p.minute);}
 function hm(min){min=((min%1440)+1440)%1440;return String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0');}
@@ -55,7 +218,6 @@ function render(){const d=new Date();
  const co=comexOpen(d);h+='<div class="c"><div>COMEX silver (Globex)</div><div class="t">'+d.toLocaleTimeString('en-GB',{timeZone:'America/New_York'})+' ET</div><div class="'+(co?'open':'closed')+'">'+(co?'OPEN':'CLOSED')+'</div><div class="small">Break Oslo '+hm(oslo('America/New_York',17,0))+'–'+hm(oslo('America/New_York',18,0))+'</div></div>';
  h+='<div class="c"><div>LBMA silver fix</div><div class="t">'+hm(oslo('Europe/London',12,0))+'</div><div class="small">12:00 London, in Oslo time</div></div>';
  document.getElementById('clocks').innerHTML=h;
- // timeline
  const segs=[];S.forEach(s=>segs.push({n:s.n,a:oslo(s.tz,s.o,0),b:oslo(s.tz,s.c,0),col:s.col}));
  const L=segs[2],N=segs[3];segs.push({n:'LDN–NY overlap',a:N.a,b:L.b,col:'#ef4444'});
  segs.push({n:'COMEX break',a:oslo('America/New_York',17,0),b:oslo('America/New_York',18,0),col:'#6b7280'});
@@ -63,7 +225,6 @@ function render(){const d=new Date();
  let r='';segs.forEach(g=>{let a=g.a,b=g.b;const pieces=b>a?[[a,b]]:[[a,1440],[0,b]];r+='<div class="row"><span class="lbl">'+g.n+'</span>'+pieces.map(p=>'<div class="bar" title="'+hm(g.a)+'–'+hm(g.b)+'" style="left:'+p[0]/14.4+'%;width:'+Math.max((p[1]-p[0])/14.4,.5)+'%;background:'+g.col+'"></div>').join('')+'</div>';});
  const nm=localMin(OSLO,d);r+='';document.getElementById('rows').innerHTML=r+'<div id="now" style="left:calc(110px + (100% - 110px)*'+nm/1440+')"></div>';
  let ax='';for(let i=0;i<24;i+=2)ax+='<span style="position:absolute;left:'+i/24*100+'%">'+String(i).padStart(2,'0')+'</span>';document.getElementById('ax').innerHTML=ax;
- // table
  const ny=(h,m)=>hm(oslo('America/New_York',h,m)),ld=(h,m)=>hm(oslo('Europe/London',h,m)),tk=(h,m)=>hm(oslo('Asia/Tokyo',h,m));
  const rows=[
  ['03:00–04:00','Medium','Tokyo/Asia mid-session (Tokyo opens '+tk(9,0)+' Oslo). Shanghai Gold Exchange (SGE) and Chinese buyers active; Shanghai afternoon session starts 13:30 Beijing. Thinner liquidity: moves can be sharp but less sustained.'],
@@ -75,16 +236,83 @@ function render(){const d=new Date();
  [ny(17,0)+'–'+ny(18,0),'Low','COMEX daily maintenance break 17:00–18:00 ET; NY forex close. Thin liquidity, wide spreads — avoid scalping.']];
  document.getElementById('tb').innerHTML=rows.map(x=>'<tr><td>'+x[0]+'</td><td class="'+x[1]+'">'+x[1]+'</td><td>'+x[2]+'</td></tr>').join('');}
 render();setInterval(render,1000);
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button,.pane').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById(b.dataset.p).classList.add('on');});
-const K={a:'ow_alerts',s:'ow_status'};const ta=document.getElementById('ta'),ts=document.getElementById('ts');
-ta.value=localStorage.getItem(K.a)||'';ts.value=localStorage.getItem(K.s)||'';
-document.getElementById('save').onclick=()=>{localStorage.setItem(K.a,ta.value.trim());localStorage.setItem(K.s,ts.value.trim());location.reload();};
-function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
-function feed(topic,el,kind){if(!topic){el.innerHTML='<div class="small">Add the topic in Setup.</div>';return;}
- const box=document.getElementById(el.id);const items=[];
- const draw=()=>{box.innerHTML=items.length?items.slice().sort((a,b)=>b.time-a.time).slice(0,100).map(m=>'<div class="msg '+(kind==='alerts'||/alert/i.test(m.title||m.message)?'alert':'')+'"><b>'+esc(m.title||'')+'</b>'+esc(m.message)+'<div class="small">'+new Date(m.time*1000).toLocaleString('en-GB',{timeZone:OSLO})+'</div></div>').join(''):'<div class="small">No messages in the last 12 hours.</div>';};
- fetch('https://ntfy.sh/'+encodeURIComponent(topic)+'/json?poll=1&since=12h').then(r=>r.text()).then(t=>{t.split('\n').forEach(l=>{try{const m=JSON.parse(l);if(m.event==='message')items.push(m);}catch(e){}});draw();
-  const es=new EventSource('https://ntfy.sh/'+encodeURIComponent(topic)+'/sse');es.onmessage=e=>{const m=JSON.parse(e.data);if(m.event==='message'&&!items.some(x=>x.id===m.id)){items.push(m);draw();}};}).catch(()=>{box.innerHTML='<div class="small">Feed offline.</div>';});}
-feed(localStorage.getItem(K.a),document.getElementById('f-alerts'),'alerts');feed(localStorage.getItem(K.s),document.getElementById('f-status'),'status');
 
-</script></body></html>
+/* ---- Tabs ---- */
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button,.pane').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById(b.dataset.p).classList.add('on');
+});
+
+/* ---- Swarm bot roster ---- */
+const BOTS=[
+  {name:'Scout',role:'Surfaces candidates from the board',mode:'LIVE PIPE'},
+  {name:'Quant',role:'Scores setups; rejects chase',mode:'LIVE PIPE'},
+  {name:'Guard',role:'Risk gate — fail closed',mode:'LIVE PIPE'},
+  {name:'Trader',role:'Places tickets only after Guard',mode:'LIVE PIPE'},
+  {name:'Manager',role:'Orchestrates the swarm',mode:'LIVE PIPE'},
+  {name:'Research',role:'23:55 daily pack → Drive (SB)',mode:'PAPER'},
+  {name:'News',role:'Watches news for crypto & commodities',mode:'PAPER'},
+  {name:'Prediction',role:'5m / 15m paper forecasts',mode:'PAPER'}
+];
+(function renderBots(){
+  const g=document.getElementById('bot-grid');
+  g.innerHTML=BOTS.map(b=>{
+    const paper=b.mode==='PAPER';
+    return '<div class="bot"><div class="name">'+b.name+'</div>'+
+      '<div class="role">'+b.role+'</div>'+
+      '<span class="badge '+(paper?'paper':'live')+'">'+(paper?'PAPER':'LIVE PIPE')+'</span>'+
+      '<span class="badge idle">IDLE</span></div>';
+  }).join('');
+})();
+
+/* ---- Predictions empty table ---- */
+const PRED_ASSETS=[
+  {a:'BTC',sym:'BTC'},
+  {a:'ETH',sym:'ETH'},
+  {a:'XRP',sym:'XRP'},
+  {a:'Gold (GC=F)',sym:'GC'},
+  {a:'Silver (SI=F)',sym:'SI'},
+  {a:'WTI (CL=F)',sym:'CL'}
+];
+(function renderPred(){
+  const body=document.getElementById('pred-body');
+  const rows=[];
+  PRED_ASSETS.forEach(p=>{
+    ['5m','15m'].forEach(h=>{
+      rows.push('<tr><td>'+p.a+'</td><td>'+h+'</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>');
+    });
+  });
+  body.innerHTML=rows.join('');
+})();
+
+/* ---- ntfy topics / feeds ---- */
+const K={a:'ow_alerts',s:'ow_status',n:'ow_news',p:'ow_pred'};
+const ta=document.getElementById('ta'),ts=document.getElementById('ts'),
+      tn=document.getElementById('tn'),tp=document.getElementById('tp');
+ta.value=localStorage.getItem(K.a)||'';
+ts.value=localStorage.getItem(K.s)||'';
+tn.value=localStorage.getItem(K.n)||'';
+tp.value=localStorage.getItem(K.p)||'';
+document.getElementById('save').onclick=()=>{
+  localStorage.setItem(K.a,ta.value.trim());
+  localStorage.setItem(K.s,ts.value.trim());
+  localStorage.setItem(K.n,tn.value.trim());
+  localStorage.setItem(K.p,tp.value.trim());
+  location.reload();
+};
+function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
+function feed(topic,el,kind,emptyMsg){
+  if(!topic){el.innerHTML='<div class="small">'+(emptyMsg||'Add the topic in Setup.')+'</div>';return;}
+  const box=document.getElementById(el.id);const items=[];
+  const draw=()=>{box.innerHTML=items.length?items.slice().sort((a,b)=>b.time-a.time).slice(0,100).map(m=>'<div class="msg '+(kind==='alerts'||/alert/i.test(m.title||m.message)?'alert':'')+'"><b>'+esc(m.title||'')+'</b>'+esc(m.message)+'<div class="small">'+new Date(m.time*1000).toLocaleString('en-GB',{timeZone:OSLO})+'</div></div>').join(''):'<div class="small">No messages in the last 12 hours.</div>';};
+  fetch('https://ntfy.sh/'+encodeURIComponent(topic)+'/json?poll=1&since=12h').then(r=>r.text()).then(t=>{t.split('\n').forEach(l=>{try{const m=JSON.parse(l);if(m.event==='message')items.push(m);}catch(e){}});draw();
+   const es=new EventSource('https://ntfy.sh/'+encodeURIComponent(topic)+'/sse');es.onmessage=e=>{const m=JSON.parse(e.data);if(m.event==='message'&&!items.some(x=>x.id===m.id)){items.push(m);draw();}};}).catch(()=>{box.innerHTML='<div class="small">Feed offline.</div>';});
+}
+feed(localStorage.getItem(K.a),document.getElementById('f-alerts'),'alerts');
+feed(localStorage.getItem(K.s),document.getElementById('f-status'),'status');
+feed(localStorage.getItem(K.n),document.getElementById('f-news'),'news','News bot posts relevant crypto/commodity headlines here (paper).');
+feed(localStorage.getItem(K.p),document.getElementById('f-pred'),'pred','Prediction bot posts scored runs here when the ow_pred topic is set.');
+</script>
+</body>
+</html>
