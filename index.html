@@ -91,6 +91,7 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
   <button data-p="news">News</button>
   <button data-p="pred">Predictions</button>
   <button data-p="market">Market</button>
+  <button data-p="ft">Freq</button>
   <button data-p="set">Setup</button>
 </div>
 
@@ -157,6 +158,22 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
   <tbody id="pred-body" style="display:none"></tbody>
 </div>
 
+
+<!-- FREQTRADE -->
+<div class="pane" id="ft">
+  <h1>Freqtrade</h1>
+  <div class="hdr-sub">Kraken spot bot — info only. No trade buttons.</div>
+  <div id="ft-banner" class="paper-banner">Waiting for FTJSON from ntfy…</div>
+  <div class="bots" id="ft-cards" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))"></div>
+  <h2>Open trades</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Pair</th><th>Amt</th><th>Open</th><th>Now</th><th>PnL%</th></tr></thead>
+    <tbody id="ft-trades"><tr><td colspan="6" class="small">No open trades yet.</td></tr></tbody>
+  </table>
+  <h2>Status feed</h2>
+  <div class="feed" id="f-ft"><div class="small">Set the Freqtrade topic in Setup.</div></div>
+</div>
+
 <!-- SETUP -->
 <div class="pane" id="set">
   <h1>Setup</h1>
@@ -166,6 +183,8 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
     Status topic<input id="ts" placeholder="ow_status"><br>
     News topic<input id="tn" placeholder="ow_news"><br>
     Predictions topic<input id="tp" placeholder="ow_pred"><br>
+    Freqtrade topic<input id="tf" placeholder="ow_ft"><br>
+    <span class="small">Suggested: giedrius-swarm-7q4k9x2m8v-freqtrade</span><br>
     <button id="save">Save</button>
   </div>
 </div>
@@ -381,19 +400,22 @@ function setWind(score, note){
 })();
 
 /* ---- ntfy topics / feeds ---- */
-const K={a:'ow_alerts',s:'ow_status',n:'ow_news',p:'ow_pred'};
+const K={a:'ow_alerts',s:'ow_status',n:'ow_news',p:'ow_pred',f:'ow_ft'};
 Object.values(K).forEach(k=>{if(!localStorage.getItem(k))localStorage.setItem(k,k);});
 const ta=document.getElementById('ta'),ts=document.getElementById('ts'),
-      tn=document.getElementById('tn'),tp=document.getElementById('tp');
+      tn=document.getElementById('tn'),tp=document.getElementById('tp'),
+      tf=document.getElementById('tf');
 ta.value=localStorage.getItem(K.a)||'';
 ts.value=localStorage.getItem(K.s)||'';
 tn.value=localStorage.getItem(K.n)||'';
 tp.value=localStorage.getItem(K.p)||'';
+tf.value=localStorage.getItem(K.f)||'';
 document.getElementById('save').onclick=()=>{
   localStorage.setItem(K.a,ta.value.trim());
   localStorage.setItem(K.s,ts.value.trim());
   localStorage.setItem(K.n,tn.value.trim());
   localStorage.setItem(K.p,tp.value.trim());
+  localStorage.setItem(K.f,tf.value.trim());
   location.reload();
 };
 function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
@@ -425,10 +447,49 @@ function predIngest(m){
     document.getElementById('hit-rate').textContent=(Math.round(+hit.hit_rate*1000)/10)+'% ('+(hit.hits||'?')+'/'+(hit.n||'?')+')';
   }
 }
+
+function ftIngest(m){
+  const raw=String(m.message||'');
+  const ix=raw.indexOf('FTJSON:');
+  if(ix<0)return false;
+  let payload=null;
+  try{payload=JSON.parse(raw.slice(ix+7).trim());}catch(e){return false;}
+  if(!payload||typeof payload!=='object')return false;
+  const live=!payload.dry_run;
+  const ban=document.getElementById('ft-banner');
+  ban.className='paper-banner';
+  ban.style.background=live?'#1e3a5f':'#064e3b';
+  ban.style.borderColor=live?'#60a5fa':'#059669';
+  ban.style.color=live?'#93c5fd':'#6ee7b7';
+  ban.textContent=(live?'LIVE':'PAPER')+' · '+(payload.exchange||'?')+' · '+(payload.strategy||'?')+' · stake '+(payload.stake_amount!=null?payload.stake_amount:'?')+' '+(payload.stake||'');
+  const cards=document.getElementById('ft-cards');
+  const cells=[
+    ['Open', (payload.open!=null?payload.open:'—')+'/'+(payload.max!=null?payload.max:'—')],
+    ['Balance', (payload.balance!=null?payload.balance:'—')+' '+(payload.stake||'')],
+    ['Closed PnL', payload.profit_closed!=null?payload.profit_closed:'—'],
+    ['Closed #', payload.closed_count!=null?payload.closed_count:'—']
+  ];
+  cards.innerHTML=cells.map(c=>'<div class="bot"><div class="name">'+esc(c[0])+'</div><div class="role" style="min-height:0;font-size:18px;font-weight:700;color:#e6e9ef">'+esc(c[1])+'</div><span class="badge '+(live?'live':'paper')+'">'+(live?'LIVE':'PAPER')+'</span></div>').join('');
+  const tb=document.getElementById('ft-trades');
+  const trades=payload.trades||[];
+  if(!trades.length){tb.innerHTML='<tr><td colspan="6" class="small">No open trades.</td></tr>';}
+  else{
+    tb.innerHTML=trades.map(t=>{
+      const pnl=t.profit_pct;
+      let pnlS=pnl==null?'—':String(pnl);
+      let cls='';
+      if(typeof pnl==='number'){cls=pnl>=0?'open':'closed'; pnlS=(Math.round(pnl*100)/100)+'%';}
+      else if(typeof pnl==='string'&&pnl!==''){const n=parseFloat(pnl); if(!isNaN(n)){cls=n>=0?'open':'closed';}}
+      return '<tr><td>'+esc(t.id)+'</td><td>'+esc(t.pair)+'</td><td>'+esc(t.amount)+'</td><td>'+esc(t.open_rate)+'</td><td>'+esc(t.current_rate)+'</td><td class="'+cls+'">'+esc(pnlS)+'</td></tr>';
+    }).join('');
+  }
+  return true;
+}
+
 function feed(topic,el,kind,emptyMsg){
   if(!topic){el.innerHTML='<div class="small">'+(emptyMsg||'Add the topic in Setup.')+'</div>';return;}
   const box=document.getElementById(el.id);const items=[];
-  const draw=()=>{if(kind==='pred'&&items.length){predIngest(items.slice().sort((a,b)=>b.time-a.time)[0]);}box.innerHTML=items.length?items.slice().sort((a,b)=>b.time-a.time).slice(0,100).map(m=>'<div class="msg '+(kind==='alerts'||/alert/i.test(m.title||m.message)?'alert':'')+'"><b>'+esc(m.title||'')+'</b>'+esc(m.message)+'<div class="small">'+new Date(m.time*1000).toLocaleString('en-GB',{timeZone:OSLO})+'</div></div>').join(''):'<div class="small">No messages in the last 12 hours.</div>';};
+  const draw=()=>{if(kind==='pred'&&items.length){predIngest(items.slice().sort((a,b)=>b.time-a.time)[0]);}if(kind==='ft'&&items.length){const sorted=items.slice().sort((a,b)=>b.time-a.time);for(const m of sorted){if(ftIngest(m))break;}}box.innerHTML=items.length?items.slice().sort((a,b)=>b.time-a.time).slice(0,100).map(m=>'<div class="msg '+(kind==='alerts'||/alert/i.test(m.title||m.message)?'alert':'')+'"><b>'+esc(m.title||'')+'</b>'+esc(m.message)+'<div class="small">'+new Date(m.time*1000).toLocaleString('en-GB',{timeZone:OSLO})+'</div></div>').join(''):'<div class="small">No messages in the last 12 hours.</div>';};
   fetch('https://ntfy.sh/'+encodeURIComponent(topic)+'/json?poll=1&since=12h').then(r=>r.text()).then(t=>{t.split('\n').forEach(l=>{try{const m=JSON.parse(l);if(m.event==='message')items.push(m);}catch(e){}});draw();
    const es=new EventSource('https://ntfy.sh/'+encodeURIComponent(topic)+'/sse');es.onmessage=e=>{const m=JSON.parse(e.data);if(m.event==='message'&&!items.some(x=>x.id===m.id)){items.push(m);draw();}};}).catch(()=>{box.innerHTML='<div class="small">Feed offline.</div>';});
 }
@@ -436,6 +497,7 @@ feed(localStorage.getItem(K.a),document.getElementById('f-alerts'),'alerts');
 feed(localStorage.getItem(K.s),document.getElementById('f-status'),'status');
 feed(localStorage.getItem(K.n),document.getElementById('f-news'),'news','News bot posts relevant crypto/commodity headlines here (paper).');
 feed(localStorage.getItem(K.p),document.getElementById('f-pred'),'pred','Prediction bot posts scored runs here when the ow_pred topic is set.');
+feed(localStorage.getItem(K.f),document.getElementById('f-ft'),'ft','Set Freqtrade topic in Setup (giedrius-swarm-7q4k9x2m8v-freqtrade).');
 </script>
 </body>
 </html>
