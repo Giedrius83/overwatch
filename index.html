@@ -183,8 +183,8 @@ td,th{border-bottom:1px solid #2a3348;padding:6px 8px;font-size:13px;text-align:
     Status topic<input id="ts" placeholder="ow_status"><br>
     News topic<input id="tn" placeholder="ow_news"><br>
     Predictions topic<input id="tp" placeholder="ow_pred"><br>
-    Freqtrade topic<input id="tf" placeholder="ow_ft"><br>
-    <span class="small">Suggested: giedrius-swarm-7q4k9x2m8v-freqtrade</span><br>
+    Freqtrade topic<input id="tf" placeholder="giedrius-swarm-7q4k9x2m8v-freqtrade"><br>
+    <span class="small">Default is the live Kraken topic (auto-migrates from ow_ft).</span><br>
     <button id="save">Save</button>
   </div>
 </div>
@@ -400,8 +400,10 @@ function setWind(score, note){
 })();
 
 /* ---- ntfy topics / feeds ---- */
+const FT_DEFAULT='giedrius-swarm-7q4k9x2m8v-freqtrade';
 const K={a:'ow_alerts',s:'ow_status',n:'ow_news',p:'ow_pred',f:'ow_ft'};
-Object.values(K).forEach(k=>{if(!localStorage.getItem(k))localStorage.setItem(k,k);});
+Object.values(K).forEach(k=>{if(!localStorage.getItem(k))localStorage.setItem(k,k===K.f?FT_DEFAULT:k);});
+(function(){const v=(localStorage.getItem(K.f)||'').trim(); if(!v||v==='ow_ft') localStorage.setItem(K.f,FT_DEFAULT);})();
 const ta=document.getElementById('ta'),ts=document.getElementById('ts'),
       tn=document.getElementById('tn'),tp=document.getElementById('tp'),
       tf=document.getElementById('tf');
@@ -409,7 +411,7 @@ ta.value=localStorage.getItem(K.a)||'';
 ts.value=localStorage.getItem(K.s)||'';
 tn.value=localStorage.getItem(K.n)||'';
 tp.value=localStorage.getItem(K.p)||'';
-tf.value=localStorage.getItem(K.f)||'';
+tf.value=localStorage.getItem(K.f)||FT_DEFAULT;
 document.getElementById('save').onclick=()=>{
   localStorage.setItem(K.a,ta.value.trim());
   localStorage.setItem(K.s,ts.value.trim());
@@ -497,7 +499,7 @@ feed(localStorage.getItem(K.a),document.getElementById('f-alerts'),'alerts');
 feed(localStorage.getItem(K.s),document.getElementById('f-status'),'status');
 feed(localStorage.getItem(K.n),document.getElementById('f-news'),'news','News bot posts relevant crypto/commodity headlines here (paper).');
 feed(localStorage.getItem(K.p),document.getElementById('f-pred'),'pred','Prediction bot posts scored runs here when the ow_pred topic is set.');
-feed(localStorage.getItem(K.f),document.getElementById('f-ft'),'ft','Set Freqtrade topic in Setup (giedrius-swarm-7q4k9x2m8v-freqtrade).');
+feed(((localStorage.getItem(K.f)||'').trim()==='ow_ft'?FT_DEFAULT:(localStorage.getItem(K.f)||FT_DEFAULT)),document.getElementById('f-ft'),'ft','Freqtrade topic should auto-fill; pull to refresh Freq.');
 </script>
 </body>
 </html>
